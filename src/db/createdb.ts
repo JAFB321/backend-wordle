@@ -1,6 +1,8 @@
+import fs from 'fs'
 import { getClient } from "./database"
 import dotenv from 'dotenv'
 dotenv.config()
+const copyFrom = require('pg-copy-streams').from
 
 export const createDB = async () => {
     const client = await getClient();
@@ -43,13 +45,39 @@ export const createDB = async () => {
         )`)
     }
 
-    return {
-        message: 'Database created successfuly',
-        dbname,
-        tables
-    }
+    // ------------------ Example data ------------------
+
+    // users
+    const username = 'user', password = '12345';
+    const username2 = 'player', password2 = '12345';
+    await client.query(`INSERT INTO public.users (username, password) VALUES($1, $2)`, [username, password]);
+    await client.query(`INSERT INTO public.users (username, password) VALUES($1, $2)`, [username2, password2]);
+
+    // dictionary
+    return new Promise((resolve, reject) => {
+        const stream = client.query(copyFrom("COPY dictionary(word) FROM STDIN "));
+        const fileStream = fs.createReadStream('words.txt')
+    
+        const onerror = (err: any) => reject(err)
+        const onsuccess = () => {
+            client.release();
+            resolve({
+                message: 'Database created successfuly',
+                dbname,
+                tables: tables.map(({name}) => name),
+                user1: {username, password},
+                user2: {username2, password2}
+            });
+        }
+        
+        fileStream.on('error', onerror);
+        stream.on('error',  onerror);
+        stream.on('finish',  onsuccess);
+        fileStream.pipe(stream);
+    })
 }
 
+console.log('Wait while the database is created');
 createDB()
 .then(console.log)
 .catch(console.error)
