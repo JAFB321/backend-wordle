@@ -13,6 +13,10 @@ dbPool.on('error', (err) => {
     dbPool.end();
 })
 
-export const getUsers = async () => {
-    return await dbPool.query('SELECT * FROM users')
+export const query = async (query: string, params: string[]) => {
+    return await dbPool.query(query, params);
+}
+
+export const getClient = async () => {
+    return await dbPool.connect();
 }
