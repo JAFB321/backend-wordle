@@ -31,6 +31,24 @@ export const createDB = async () => {
                 'word TEXT PRIMARY KEY',
                 'available BOOLEAN DEFAULT TRUE'
             ]
+        },
+        {
+            name: 'selectedWords',
+            cols: [
+                'id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY',
+                'word TEXT REFERENCES dictionary(word) NOT NULL',
+                'active BOOLEAN NOT NULL',
+            ]
+        },
+        {
+            name: 'userGames',
+            cols: [
+                'id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY',
+                'userId INT REFERENCES users(id) NOT NULL',
+                'word TEXT REFERENCES dictionary(word) NOT NULL',
+                'attemps SMALLINT NOT NULL',
+                'state VARCHAR(8) NOT NULL'
+            ]
         }
     ]
 
