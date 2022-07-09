@@ -65,3 +65,5 @@ router.post('/game/:gameId/attemp', async (req, res) => {
         };
     });
 });
+
+export default router;
