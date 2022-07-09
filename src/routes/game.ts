@@ -1,27 +1,51 @@
 import {Router} from 'express'
-import { getActiveUserGame, getUserGame } from '../services/games';
+import { getActiveUserGame, getLastUserGame, getUserGame, startUserGame } from '../services/games';
+import { getCurrentWord } from '../services/words';
 
 const router = Router(); 
 
-router.get('/:userId/game', async (req, res) => {
+router.get('user/:userId/game', async (req, res) => {
 
     const userId = Number.parseInt(req.params.userId);
     if(!userId) return res.status(422).send({
         error: 'Missing or invalid userId'
     });
 
-    let activeGame = await getActiveUserGame(userId);
-    if(!activeGame) return res.status(500).send({
-        error: 'Not able to create a new game'
-    });
+    try {
+        let activeGame = await getActiveUserGame(userId);
+        if(!activeGame){
+            const lastGame = await getLastUserGame(userId);
+            const currentWord = await getCurrentWord();
 
-    // Send active game
-    const {id, attemps, state} = activeGame;
-    res.json({
-        gameId: id,
-        attemps,
-        state
-    });
+            if(lastGame?.word === currentWord.word) return res.send({
+                gameId: lastGame?.id,
+                attemps: lastGame?.attemps,
+                state: lastGame?.state,
+                word: lastGame?.word,
+                alert: 'You already have played the current word. Please wait a few minutes to restart'
+            });
+            else{
+                activeGame = await startUserGame(userId);
+            }
+        }
+        
+        if(!activeGame) return res.status(500).send({
+            error: 'Not able to get the game'
+        });
+
+        const {id, attemps, state} = activeGame;
+
+        res.json({
+            gameId: id,
+            attemps,
+            state
+        });
+        
+    } catch (error) {
+        res.status(500).send({
+            error: 'An error has ocurred'
+        });
+    }
 });
 
 router.post('/game/:gameId/attemp', async (req, res) => {
