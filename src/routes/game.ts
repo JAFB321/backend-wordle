@@ -1,12 +1,20 @@
 import {Router} from 'express'
+import { Request as JWTRequest } from 'express-jwt';
+import { verifyJWtToken } from '../middlewares/auth';
 import { getActiveUserGame, getLastUserGame, getUserGame, setUserGameAttemps, setUserGameState, startUserGame } from '../services/games';
 import { getCurrentWord } from '../services/words';
 
 const router = Router(); 
 
-router.get('user/:userId/game', async (req, res) => {
+router.get('/user/:userId/game', verifyJWtToken, async (req: JWTRequest, res) => {
 
+    const reqUserId = Number.parseInt(req.auth?.userid);
     const userId = Number.parseInt(req.params.userId);
+
+    if(!!reqUserId && reqUserId !== userId) return res.status(403).send({
+        error: "You don't have permission for use this resource"
+    }); 
+
     if(!userId) return res.status(422).send({
         error: 'Missing or invalid userId'
     });
@@ -48,7 +56,7 @@ router.get('user/:userId/game', async (req, res) => {
     }
 });
 
-router.post('/game/:gameId/attemp', async (req, res) => {
+router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res) => {
     const {gameId} = req.params;
     const {word} = req.body;
 
@@ -61,6 +69,13 @@ router.post('/game/:gameId/attemp', async (req, res) => {
     if(!game) return res.status(500).send({
         error: 'The game does not exists'
     });
+
+    const reqUserId = Number.parseInt(req.auth?.userid);
+    const userid = game.userid;
+
+    if(!!reqUserId && reqUserId !== userid) return res.status(403).send({
+        error: "You don't have permission for use this resource"
+    }); 
 
     const {state, attemps, word: gameWord } = game;
 
