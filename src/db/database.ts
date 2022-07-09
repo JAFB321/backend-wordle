@@ -1,11 +1,12 @@
 import {Pool} from 'pg'
+import { PGDATABASE, PGHOST, PGPASSWORD, PGPORT, PGUSER } from '../config';
 
 const dbPool = new Pool({
-    host: process.env.PGHOST,
-    port: Number.parseInt(process.env.PGPORT || '') || 5432,
-    database: process.env.PGDATABASE,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
+    host: PGHOST,
+    port: PGPORT,
+    database: PGDATABASE,
+    user: PGUSER,
+    password: PGPASSWORD,
 });
 
 dbPool.on('error', (err) => {

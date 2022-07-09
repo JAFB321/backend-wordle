@@ -1,7 +1,8 @@
 import { expressjwt } from "express-jwt";
+import { JWT_SECRET } from "../config";
 
 export const verifyJWtToken = expressjwt({
-    secret: process.env.JWT_SECRET || '',
+    secret: JWT_SECRET,
     algorithms: ["HS256"]
 });
 

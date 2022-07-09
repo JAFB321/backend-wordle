@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { getClient } from "./database"
 import dotenv from 'dotenv'
+import { PGDATABASE } from '../config'
 dotenv.config()
 const copyFrom = require('pg-copy-streams').from
 
@@ -8,7 +9,7 @@ export const createDB = async () => {
     const client = await getClient();
 
     // ------------------ Create database ------------------
-    const dbname = process.env.PGDATABASE || 'wordle';
+    const dbname = PGDATABASE;
 
     const alreadtExist = (await client.query(`SELECT 1 FROM pg_database WHERE datname = '${dbname}'`)).rowCount > 0
     if(!alreadtExist){

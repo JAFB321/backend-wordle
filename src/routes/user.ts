@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config';
 import { checkLogin } from '../services/user';
 
 const router = express.Router();
@@ -17,7 +18,7 @@ router.post('/login', async (req, res) => {
     });
 
     const {userid, username} = userLogged;
-    const token = jwt.sign({userid, username}, process.env.JWT_SECRET || '', {expiresIn: 3600});
+    const token = jwt.sign({userid, username}, JWT_SECRET, {expiresIn: 3600});
     res.send({
         logged: true,
         token,
