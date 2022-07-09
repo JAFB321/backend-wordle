@@ -13,7 +13,7 @@ dbPool.on('error', (err) => {
     dbPool.end();
 })
 
-export const query = async (query: string, params = []) => {
+export const query = async (query: string, params: any[] = []) => {
     return await dbPool.query(query, params);
 }
 
