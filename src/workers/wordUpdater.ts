@@ -1,3 +1,5 @@
+import { getRandomWord, setCurrentWord } from "../services/words";
+
 export class WordUpdater {
     private intervalID: NodeJS.Timer | null = null;
 
@@ -18,8 +20,12 @@ export class WordUpdater {
     }
 
     private async UpdateCurrentWord(){
-        console.log('Select a new word');
+        const newWord = await getRandomWord();
+        console.log(newWord);
         
+        if(newWord){
+            await setCurrentWord(newWord);
+        }
     }
 }
 
