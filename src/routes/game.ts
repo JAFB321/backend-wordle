@@ -58,10 +58,10 @@ router.get('/user/:userId/game', verifyJWtToken, async (req: JWTRequest, res) =>
 
 router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res) => {
     const {gameId} = req.params;
-    const {word} = req.body;
+    const {user_word} = req.body;
 
     const nGameId = Number.parseInt(gameId, 10);
-    if(!word || !nGameId) return res.status(422).send({
+    if(!user_word || !nGameId) return res.status(422).send({
         error: 'Missing parameters'
     });
 
@@ -83,12 +83,12 @@ router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res)
         error: `The game is over. ${state === 'won' ? 'You have won this game!' : 'You have lost this game'}`
     });
 
-    if(word.length !== 5) return res.status(422).send({
+    if(user_word.length !== 5) return res.status(422).send({
         error: 'The word must have 5 letters'
     });
 
     // Compare words
-    const letters = (word+'').toLowerCase().split('');
+    const letters = (user_word+'').toLowerCase().split('');
     const coincidences = letters.map((char, i) => {
         if(char === gameWord[i]) return {
             letter: char,
@@ -104,18 +104,24 @@ router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res)
         };
     });
 
+    let won = false, maxAttemps = false;
     // If won
-    if(word === gameWord){
+    if(user_word === gameWord){
         await setUserGameState(nGameId, 'won');
+        won = true;
     }
     // If attemps are over
-    if(attemps+1 >= 5){
+    if(!won && attemps+1 >= 5){
         await setUserGameState(nGameId, 'lost');
+        maxAttemps = true;
     }
     // Update game attemps
     await setUserGameAttemps(nGameId, attemps+1);
 
-    res.send(coincidences);
+    res.send({
+        state: won ? 'won' : maxAttemps ? 'lost' : 'progress',
+        coincidences
+    });
 });
 
 export default router;
