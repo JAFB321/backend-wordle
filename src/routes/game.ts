@@ -88,13 +88,14 @@ router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res)
     });
 
     // Compare words
-    const letters = (user_word+'').toLowerCase().split('');
+    const letters = (user_word+'').toUpperCase().split('');
     const coincidences = letters.map((char, i) => {
-        if(char === gameWord[i]) return {
+        const word = gameWord.toUpperCase();
+        if(char === word[i]) return {
             letter: char,
             value: 1
         };
-        else if(gameWord.includes(char)) return {
+        else if(word.includes(char)) return {
             letter: char,
             value: 2
         };
@@ -106,7 +107,7 @@ router.post('/game/:gameId/attemp', verifyJWtToken, async (req: JWTRequest, res)
 
     let won = false, maxAttemps = false;
     // If won
-    if(user_word === gameWord){
+    if(user_word.toUpperCase() === gameWord.toUpperCase()){
         await setUserGameState(nGameId, 'won');
         won = true;
     }
