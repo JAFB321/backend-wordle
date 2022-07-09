@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { getActiveUserGame, getLastUserGame, getUserGame, startUserGame } from '../services/games';
+import { getActiveUserGame, getLastUserGame, getUserGame, setUserGameAttemps, setUserGameState, startUserGame } from '../services/games';
 import { getCurrentWord } from '../services/words';
 
 const router = Router(); 
@@ -88,6 +88,19 @@ router.post('/game/:gameId/attemp', async (req, res) => {
             value: 3
         };
     });
+
+    // If won
+    if(word === gameWord){
+        await setUserGameState(nGameId, 'won');
+    }
+    // If attemps are over
+    if(attemps+1 >= 5){
+        await setUserGameState(nGameId, 'lost');
+    }
+    // Update game attemps
+    await setUserGameAttemps(nGameId, attemps+1);
+
+    res.send(coincidences);
 });
 
 export default router;
