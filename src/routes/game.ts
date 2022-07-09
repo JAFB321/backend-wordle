@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { getUserGame } from '../services/games';
+import { getActiveUserGame } from '../services/games';
 
 const router = Router(); 
 
@@ -11,6 +11,17 @@ router.get('/:userId/game', async (req, res) => {
         error: 'Missing or invalid userId'
     });
 
-    
-    
-})
+    let activeGame = await getActiveUserGame(userId);
+
+    if(!activeGame) return res.status(500).send({
+        error: 'Not able to create a new game'
+    });
+
+    // Send active game
+    const {id, attemps, state} = activeGame;
+    res.json({
+        gameId: id,
+        attemps,
+        state
+    });
+});
