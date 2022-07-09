@@ -42,3 +42,34 @@ export const getActiveUserGame = async (userId: number) => {
     }
     else return null;
 }
+
+export const getLastUserGame = async (userId: number) => {
+    const lastGame = await query(`
+        SELECT id, userId, attemps, state, word FROM userGames
+        WHERE userId = $1
+        ORDER BY id DESC
+        LIMIT 1     
+    `, [userId]) 
+      
+    if(lastGame.rows[0]){
+        const {id, userid, attemps, state, word} = lastGame.rows[0];
+        return {id, userid, attemps, state, word}
+    }
+    else return null;
+}
+
+export const setUserGameAttemps = async (gameId: number, attemps: number) => {
+    await query(`
+        UPDATE userGames
+        SET attemps = $2
+        WHERE id = $1
+    `, [gameId, attemps])
+}
+
+export const setUserGameState = async (gameId: number, state: 'won' | 'lost' | 'progress') => {
+    await query(`
+        UPDATE userGames
+        SET state = $2
+        WHERE id = $1
+    `, [gameId, state])
+}
