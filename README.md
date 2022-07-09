@@ -43,7 +43,7 @@ guste
 ```
 
 #### 4.- Hacer login con un usuario de ejemplo
-```json
+```bash
 POST /api/login
 {
     "user": "player",
@@ -51,7 +51,7 @@ POST /api/login
 }
 ```
 Esto retornara el token de autenticación que sera necesario enviar en las proximas llamadas a las rutas de la API (como Bearer token):
-```json
+```bash
 {
     "logged": true,
     "token": "tu token",
@@ -64,7 +64,7 @@ Esto retornara el token de autenticación que sera necesario enviar en las proxi
 GET /api/user/:userId/game
 ```
 Que responde con la sesion de juego actual del jugador:
-```json
+```bash
 {
     "gameId": 1,
     "attemps": 0,
@@ -73,14 +73,14 @@ Que responde con la sesion de juego actual del jugador:
 ```
 
 #### 6.- Hacer intentos para adivinar la palabra
-```json
+```bash
 POST /api/game/:gameId/attemp
 {
     "user_word": "GATOS"
 }
 ```
 Esto respondera con un arreglo describiendo el acierto de cada letra:
-```json
+```bash
 {
     "state": "progress",
     "coincidences": [
